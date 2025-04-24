@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: content-creator
+spec:
+  template:
+    spec:
+      containers:
+      - name: content-creator
+        image: busybox
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          echo '<!DOCTYPE html>
+          <html>
+          <head>
+            <title>LSC Lab 6 Demo</title>
+            <style>
+              body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+              h1 { color: #2c3e50; }
+              .container { max-width: 800px; margin: 0 auto; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>Welcome to LSC Lab 6!</h1>
+              <p>This content is served from a Kubernetes deployment with NFS storage.</p>
+              <p>Created at: '$(date)'</p>
+            </div>
+          </body>
+          </html>' > /mnt/data/index.html
+        volumeMounts:
+        - name: web-content
+          mountPath: /mnt/data
+      restartPolicy: Never
+      volumes:
+      - name: web-content
+        persistentVolumeClaim:
+          claimName: web-content-pvc
+  backoffLimit: 4
